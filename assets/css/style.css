@@ -398,6 +398,7 @@ ul { list-style: none; }
 .btn-primary {
   display: inline-block;
   padding: 14px 32px;
+  margin-top: 100px;
   background: #fff;
   color: #0f172a;
   border-radius: 100px;
@@ -657,6 +658,10 @@ ul { list-style: none; }
   .container { padding: 0 20px; }
   .about-section, .page-header, .events-section { padding-inline: 20px; }
   .footer-bottom { padding: 16px 20px; flex-direction: column; text-align: center; }
+
+  .btn-primary {
+    margin-top: 50px;
+  }
 }
 
 @media (max-width: 480px) {
