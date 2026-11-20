@@ -583,19 +583,37 @@ ul { list-style: none; }
 .powered-by {
   display: inline-flex;
   align-items: center;
+  white-space: nowrap;
+}
+
+.powered-by a {
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
+  white-space: nowrap;
+  color: inherit;
+  text-decoration: none;
+}
+
+.powered-by .powered-text {
+  display: inline-block;
+  white-space: nowrap;
 }
 
 .powered-by img {
   height: 22px;
   width: auto;
+  flex-shrink: 0;
+  display: inline-block;
   opacity: 0.9;
   filter: grayscale(1);
   transition: filter 0.2s, opacity 0.2s;
 }
 
-.powered-by:hover img { filter: grayscale(0); opacity: 1; }
-
+.powered-by:hover img {
+  filter: grayscale(0);
+  opacity: 1;
+}
 /* ============================
    انتقال الوضع الداكن/الفاتح (مثلثات زجاجية)
    ============================ */
