@@ -27,9 +27,9 @@
       { "platform": "email",     "url": "mailto:info@example.com",        "icon": "mail"      }
     ],
     "poweredBy": {
-      "name": "Your Team",
+      "name": "thera_code",
       "logo": "assets/images/team-logo.png",
-      "url": "https://your-team.example.com"
+      "url": "https://www.instagram.com/thera_code"
     }
   }
 }
