@@ -4,7 +4,7 @@
 
 const I18N = {
   config: null,
-  strings: {},      // { "nav.home": "الرئيسية", ... }
+  strings: {},
   lang: 'ar',
   supported: ['ar', 'fr'],
   labels: { ar: 'العربية', fr: 'Français' },
@@ -44,7 +44,6 @@ function applyTheme(theme) {
   THEME.current = theme;
   document.documentElement.setAttribute('data-theme', theme);
   localStorage.setItem(THEME.key, theme);
-  // حدّث aria
   const btn = $('#themeToggle');
   if (btn) {
     btn.setAttribute('aria-label',
@@ -53,7 +52,6 @@ function applyTheme(theme) {
 }
 
 function toggleThemeWithReveal(event) {
-  // منع التكرار أثناء الانتقال
   if (document.querySelector('.theme-reveal')) return;
 
   const target = THEME.current === 'dark' ? 'light' : 'dark';
@@ -86,7 +84,6 @@ function toggleThemeWithReveal(event) {
 
   setTimeout(() => {
     applyTheme(target);
-    // بعد تطبيق الثيم الفعلي نحذف الطبقة بسلاسة
     container.style.transition = 'opacity 0.2s';
     container.style.opacity = '0';
     setTimeout(() => container.remove(), 220);
@@ -112,7 +109,6 @@ function updateLangUI() {
   const cur = $('#langCurrent');
   if (cur) cur.textContent = I18N.lang.toUpperCase();
 
-  // بناء قائمة اللغات
   const menu = $('#langMenu');
   if (menu) {
     menu.innerHTML = I18N.supported.map(code => `
@@ -134,19 +130,16 @@ async function loadLanguage(lang) {
 }
 
 function translatePage() {
-  // النصوص البسيطة
   $$('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
     const txt = getText(key);
     if (txt) el.textContent = txt;
   });
-  // placeholders
   $$('[data-i18n-placeholder]').forEach(el => {
     const key = el.getAttribute('data-i18n-placeholder');
     const txt = getText(key);
     if (txt) el.setAttribute('placeholder', txt);
   });
-  // titles
   $$('[data-i18n-title]').forEach(el => {
     const key = el.getAttribute('data-i18n-title');
     const txt = getText(key);
@@ -161,11 +154,9 @@ function renderDynamic() {
   if (!I18N.config) return;
   const cfg = I18N.config;
 
-  // الشعار
   const logo = $('#brandLogo');
   if (logo && cfg.brand?.logo) logo.src = cfg.brand.logo;
 
-  // الشريط الجانبي
   const nav = $('#sidebarNav');
   if (nav) {
     const currentPath = location.pathname.split('/').pop() || 'index.html';
@@ -181,13 +172,11 @@ function renderDynamic() {
     }).join('');
   }
 
-  // Hero
   const heroBg = $('#heroBg');
   if (heroBg && cfg.home?.heroImage) {
     heroBg.style.backgroundImage = `url('${cfg.home.heroImage}')`;
   }
 
-  // Footer - روابط سريعة
   const footerLinks = $('#footerLinks');
   if (footerLinks) {
     footerLinks.innerHTML = (cfg.sidebar?.items || []).map(item => {
@@ -196,7 +185,6 @@ function renderDynamic() {
     }).join('');
   }
 
-  // Footer - السوشيال
   const social = $('#footerSocial');
   if (social) {
     social.innerHTML = (cfg.footer?.social || []).map(s => `
@@ -205,7 +193,6 @@ function renderDynamic() {
       </a>`).join('');
   }
 
-  // حقوق النشر
   const copyright = $('#copyrightText');
   if (copyright) {
     const year = cfg.footer?.startYear || 2026;
@@ -214,16 +201,23 @@ function renderDynamic() {
     copyright.textContent = `© ${year} ${name} — ${rights}`;
   }
 
-  // Powered by
+  /* ============================================
+     Powered by — الترتيب: النص أولاً ثم الشعار
+     ============================================ */
   const powered = $('#poweredBy');
   if (powered && cfg.footer?.poweredBy) {
     const pb = cfg.footer.poweredBy;
     const label = getText('footer.poweredBy', 'Powered by');
-    const logoHtml = pb.logo ? `<img src="${pb.logo}" alt="${pb.name}" />` : '';
-    powered.innerHTML = `<a href="${pb.url}" target="_blank" rel="noopener">${logoHtml}<span>${label} ${pb.name}</span></a>`;
+    const logoHtml = pb.logo
+      ? `<img src="${pb.logo}" alt="${pb.name}" />`
+      : '';
+    powered.innerHTML =
+      `<a href="${pb.url}" target="_blank" rel="noopener">` +
+        `<span class="powered-text">${label} ${pb.name}</span>` +
+        logoHtml +
+      `</a>`;
   }
 
-  // أيقونات Lucide
   if (window.lucide) window.lucide.createIcons();
 }
 
@@ -231,13 +225,11 @@ function renderDynamic() {
    أحداث الواجهة
    --------------------------------------------------------- */
 function bindUI() {
-  // الثيم
   const themeBtn = $('#themeToggle');
   if (themeBtn) {
     themeBtn.addEventListener('click', (e) => toggleThemeWithReveal(e));
   }
 
-  // اللغة
   const langBtn = $('#langBtn');
   const langMenu = $('#langMenu');
   if (langBtn && langMenu) {
@@ -255,7 +247,6 @@ function bindUI() {
     });
   }
 
-  // القائمة الجانبية (موبايل)
   const menuToggle = $('#menuToggle');
   const sidebar = $('#sidebar');
   const backdrop = $('#sidebarBackdrop');
@@ -274,7 +265,6 @@ function bindUI() {
       document.body.style.overflow = opening ? 'hidden' : '';
     });
     backdrop.addEventListener('click', closeSidebar);
-    // إغلاق عند اختيار رابط
     sidebar.addEventListener('click', (e) => {
       if (e.target.closest('a')) closeSidebar();
     });
@@ -340,29 +330,22 @@ function escapeHTML(s) {
    التهيئة
    --------------------------------------------------------- */
 (async function init() {
-  // 1) الثيم فوراً (قبل التحميل لتفادي الوميض)
   applyTheme(getSavedTheme());
 
-  // 2) اللغة
   const lang = detectInitialLanguage();
   updateLangUI();
 
   try {
-    // 3) تحميل config والترجمة معاً
     const [cfg] = await Promise.all([
       fetchJSON('assets/data/config.json'),
       loadLanguage(lang),
     ]);
     I18N.config = cfg;
 
-    // 4) الرسم والترجمة
     translatePage();
     renderDynamic();
 
-    // 5) الأحداث
     bindUI();
-
-    // 6) الفعاليات إذا كانت الصفحة
     await renderEvents();
   } catch (err) {
     console.error('Init error:', err);
